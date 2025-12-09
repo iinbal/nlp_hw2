@@ -27,8 +27,13 @@ def forward(data, label, params, dimensions):
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
     # Compute the probability
-    ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
+    a = data.dot(W1) + b1
+    h = sigmoid(a)
+    z = h.dot(W2) + b2
+    yhat = softmax(z)
+
+    return yhat[0, label]
+
     ### END YOUR CODE
 
 
@@ -60,16 +65,35 @@ def forward_backward_prop(data, labels, params, dimensions):
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
     ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
+    a = data.dot(W1) + b1          # M×H
+    h = sigmoid(a)                 # M×H
+    z = h.dot(W2) + b2             # M×Dy
+    yhat = softmax(z)              # M×Dy
+
+    M = data.shape[0]
+    
+    # Cross-entropy loss
+    cost = -np.sum(labels * np.log(yhat)) / M
     ### END YOUR CODE
 
     ### YOUR CODE HERE: backward propagation
-    raise NotImplementedError
-    ### END YOUR CODE
+    # Softmax + CE derivative
+    delta2 = (yhat - labels) / M       # M×Dy
+
+    # Gradients for W2 and b2
+    gradW2 = h.T.dot(delta2)       # H×Dy
+    gradb2 = np.sum(delta2, axis=0, keepdims=True)
+
+    # Backprop into hidden layer
+    delta1 = delta2.dot(W2.T) * sigmoid_grad(h)    # M×H
+
+    # Gradients for W1 and b1
+    gradW1 = data.T.dot(delta1)    # Dx×H
+    gradb1 = np.sum(delta1, axis=0, keepdims=True)    ### END YOUR CODE
 
     # Stack gradients (do not modify)
-    grad = np.concatenate((gradW1.flatten(), gradb1.flatten(),
-        gradW2.flatten(), gradb2.flatten()))
+    grad = np.concatenate([gradW1.flatten(), gradb1.flatten(),
+        gradW2.flatten(), gradb2.flatten()])
 
     return cost, grad
 
