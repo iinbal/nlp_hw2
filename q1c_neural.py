@@ -65,10 +65,10 @@ def forward_backward_prop(data, labels, params, dimensions):
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
     ### YOUR CODE HERE: forward propagation
-    a = data.dot(W1) + b1          # M×H
-    h = sigmoid(a)                 # M×H
-    z = h.dot(W2) + b2             # M×Dy
-    yhat = softmax(z)              # M×Dy
+    a = data.dot(W1) + b1   # M×H
+    h = sigmoid(a)          # M×H
+    z = h.dot(W2) + b2      # M×Dy
+    yhat = softmax(z)      # M×Dy
 
     M = data.shape[0]
     
@@ -78,7 +78,7 @@ def forward_backward_prop(data, labels, params, dimensions):
 
     ### YOUR CODE HERE: backward propagation
     # Softmax + CE derivative
-    delta2 = (yhat - labels) / M       # M×Dy
+    delta2 = (yhat - labels) / M   # M×Dy
 
     # Gradients for W2 and b2
     gradW2 = h.T.dot(delta2)       # H×Dy

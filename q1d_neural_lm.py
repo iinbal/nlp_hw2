@@ -82,7 +82,22 @@ def lm_wrapper(in_word_index, out_word_index, num_to_word_embedding, dimensions,
 
     # Construct the data batch and run you backpropogation implementation
     ### YOUR CODE HERE
-    raise NotImplementedError
+    
+    batch_indices = np.random.choice(len(in_word_index), BATCH_SIZE, replace=False)
+    
+    # Fill the data and labels
+    for i, idx in enumerate(batch_indices):
+        # Get the GloVe embedding for the input word
+        word_idx = in_word_index[idx]
+        data[i, :] = num_to_word_embedding[word_idx]
+        
+        # Get the one-hot label for the output word
+        labels[i, :] = int_to_one_hot(out_word_index[idx], output_dim)
+    
+    # Run forward and backward propagation
+    cost, grad = forward_backward_prop(data, labels, params, dimensions)
+    
+    
     ### END YOUR CODE
 
     cost /= BATCH_SIZE
@@ -101,7 +116,35 @@ def eval_neural_lm(eval_data_path):
 
     perplexity = 0
     ### YOUR CODE HERE
-    raise NotImplementedError
+    
+    total_log_prob = 0.0
+    
+    # Process in batches
+    for i in range(0, num_of_examples, BATCH_SIZE):
+        # Get batch indices
+        end_idx = min(i + BATCH_SIZE, num_of_examples)
+        batch_size = end_idx - i
+        
+        # Prepare data and labels
+        data = np.zeros([batch_size, input_dim])
+        labels = np.zeros([batch_size, output_dim])
+        
+        for j in range(batch_size):
+            idx = i + j
+            word_idx = in_word_index[idx]
+            data[j, :] = num_to_word_embedding[word_idx]
+            labels[j, :] = int_to_one_hot(out_word_index[idx], output_dim)
+        
+        cost, _ = forward_backward_prop(data, labels, params, dimensions)
+        # The cost is already the negative log likelihood for the batch
+        total_log_prob += cost * batch_size
+        
+    # Calculate average negative log likelihood
+    avg_nll = total_log_prob / num_of_examples
+    
+    # Compute perplexity 
+    perplexity = np.exp(avg_nll)
+    
     ### END YOUR CODE
 
     return perplexity
@@ -157,3 +200,6 @@ if __name__ == "__main__":
         print(f"test perplexity : {perplexity}")
     else:
         print("test perplexity will be evaluated only at test time!")
+    
+    print("Shakespeare perplexity :", eval_neural_lm("shakespeare_for_perplexity.txt"))
+    print("Wikipedia perplexity :", eval_neural_lm("wikipedia_for_perplexity.txt"))
