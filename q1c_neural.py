@@ -27,6 +27,7 @@ def forward(data, label, params, dimensions):
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
     # Compute the probability
+    ### YOUR CODE HERE: forward propagation
     a = data.dot(W1) + b1
     h = sigmoid(a)
     z = h.dot(W2) + b2
@@ -73,7 +74,7 @@ def forward_backward_prop(data, labels, params, dimensions):
     M = data.shape[0]
     
     # Cross-entropy loss
-    cost = -np.sum(labels * np.log(yhat)) / M
+    cost = -np.sum(labels * np.log(yhat)+ 1e-12) / M
     ### END YOUR CODE
 
     ### YOUR CODE HERE: backward propagation
@@ -92,8 +93,8 @@ def forward_backward_prop(data, labels, params, dimensions):
     gradb1 = np.sum(delta1, axis=0, keepdims=True)    ### END YOUR CODE
 
     # Stack gradients (do not modify)
-    grad = np.concatenate([gradW1.flatten(), gradb1.flatten(),
-        gradW2.flatten(), gradb2.flatten()])
+    grad = np.concatenate((gradW1.flatten(), gradb1.flatten(),
+        gradW2.flatten(), gradb2.flatten()))
 
     return cost, grad
 

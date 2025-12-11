@@ -82,21 +82,23 @@ def lm_wrapper(in_word_index, out_word_index, num_to_word_embedding, dimensions,
 
     # Construct the data batch and run you backpropogation implementation
     ### YOUR CODE HERE
+    N = len(in_word_index)
+    batch_indices = np.random.choice(N, BATCH_SIZE, replace=False)
     
-    batch_indices = np.random.choice(len(in_word_index), BATCH_SIZE, replace=False)
+    # Extract input words and convert to embeddings using list comprehension to gather embeddings, then converting to array
+    batch_input_indices = [in_word_index[i] for i in batch_indices]
+    data = np.array([num_to_word_embedding[idx] for idx in batch_input_indices])
     
-    # Fill the data and labels
-    for i, idx in enumerate(batch_indices):
-        # Get the GloVe embedding for the input word
-        word_idx = in_word_index[idx]
-        data[i, :] = num_to_word_embedding[word_idx]
-        
-        # Get the one-hot label for the output word
-        labels[i, :] = int_to_one_hot(out_word_index[idx], output_dim)
+    # Extract output words and create one-hot labels
+    batch_output_indices = [out_word_index[i] for i in batch_indices]
+    out_dim = dimensions[2]
     
-    # Run forward and backward propagation
+    labels = np.zeros((BATCH_SIZE, out_dim))
+    # Use indexing to set the correct index to 1.0 for each row
+    labels[np.arange(BATCH_SIZE), batch_output_indices] = 1.0
+    
+    # Forward and Backward Propagation, returns the SUM of costs to match the wrapper's division below
     cost, grad = forward_backward_prop(data, labels, params, dimensions)
-    
     
     ### END YOUR CODE
 
@@ -116,33 +118,37 @@ def eval_neural_lm(eval_data_path):
 
     perplexity = 0
     ### YOUR CODE HERE
+    total_cost = 0.0
+
+    output_dim = 2000 
     
-    total_log_prob = 0.0
-    
-    # Process in batches
+    # Process the evaluation data in batches for efficiency
     for i in range(0, num_of_examples, BATCH_SIZE):
+        # Determine batch slice
+        batch_slice = slice(i, min(i + BATCH_SIZE, num_of_examples))
+        current_batch_size = batch_slice.stop - batch_slice.start
+        
         # Get batch indices
-        end_idx = min(i + BATCH_SIZE, num_of_examples)
-        batch_size = end_idx - i
+        batch_in = in_word_index[batch_slice]
+        batch_out = out_word_index[batch_slice]
         
-        # Prepare data and labels
-        data = np.zeros([batch_size, input_dim])
-        labels = np.zeros([batch_size, output_dim])
+        # Prepare Data (Embeddings)
+        data = np.array([num_to_word_embedding[w] for w in batch_in])
         
-        for j in range(batch_size):
-            idx = i + j
-            word_idx = in_word_index[idx]
-            data[j, :] = num_to_word_embedding[word_idx]
-            labels[j, :] = int_to_one_hot(out_word_index[idx], output_dim)
+        # Prepare Labels (One-Hot)
+        labels = np.zeros((current_batch_size, output_dim))
+        labels[np.arange(current_batch_size), batch_out] = 1.0
         
-        cost, _ = forward_backward_prop(data, labels, params, dimensions)
-        # The cost is already the negative log likelihood for the batch
-        total_log_prob += cost * batch_size
+        # Forward Pass Only
+        c, _ = forward_backward_prop(data, labels, params, dimensions)
         
-    # Calculate average negative log likelihood
-    avg_nll = total_log_prob / num_of_examples
+        # c is the total cost (sum of negative log likelihoods) for the batch
+        total_cost += c
+        
+    # Calculate Average Negative Log Likelihood
+    avg_nll = total_cost / num_of_examples
     
-    # Compute perplexity 
+    # Calculate Perplexity
     perplexity = np.exp(avg_nll)
     
     ### END YOUR CODE
@@ -200,6 +206,6 @@ if __name__ == "__main__":
         print(f"test perplexity : {perplexity}")
     else:
         print("test perplexity will be evaluated only at test time!")
-    
+
     print("Shakespeare perplexity :", eval_neural_lm("shakespeare_for_perplexity.txt"))
     print("Wikipedia perplexity :", eval_neural_lm("wikipedia_for_perplexity.txt"))
