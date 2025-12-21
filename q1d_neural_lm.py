@@ -77,10 +77,11 @@ def int_to_one_hot(number, dim):
 
 def lm_wrapper(in_word_index, out_word_index, num_to_word_embedding, dimensions, params):
 
-    data = np.zeros([BATCH_SIZE, input_dim])
-    labels = np.zeros([BATCH_SIZE, output_dim])
+    data = np.zeros([BATCH_SIZE, dimensions[0]])
+    labels = np.zeros([BATCH_SIZE, dimensions[2]])
 
     # Construct the data batch and run you backpropogation implementation
+    
     ### YOUR CODE HERE
     N = len(in_word_index)
     batch_indices = np.random.choice(N, BATCH_SIZE, replace=False)

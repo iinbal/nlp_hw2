@@ -74,12 +74,12 @@ def forward_backward_prop(data, labels, params, dimensions):
     M = data.shape[0]
     
     # Cross-entropy loss
-    cost = -np.sum(labels * np.log(yhat)+ 1e-12) / M
+    cost = -np.sum(labels * np.log(yhat + 1e-12))
     ### END YOUR CODE
 
     ### YOUR CODE HERE: backward propagation
     # Softmax + CE derivative
-    delta2 = (yhat - labels) / M   # M×Dy
+    delta2 = yhat - labels  # M×Dy
 
     # Gradients for W2 and b2
     gradW2 = h.T.dot(delta2)       # H×Dy
@@ -90,7 +90,8 @@ def forward_backward_prop(data, labels, params, dimensions):
 
     # Gradients for W1 and b1
     gradW1 = data.T.dot(delta1)    # Dx×H
-    gradb1 = np.sum(delta1, axis=0, keepdims=True)    ### END YOUR CODE
+    gradb1 = np.sum(delta1, axis=0, keepdims=True)    
+    ### END YOUR CODE
 
     # Stack gradients (do not modify)
     grad = np.concatenate((gradW1.flatten(), gradb1.flatten(),
