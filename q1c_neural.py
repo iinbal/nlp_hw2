@@ -27,6 +27,7 @@ def forward(data, label, params, dimensions):
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
     # Compute the probability
+    
     ### YOUR CODE HERE: forward propagation
     a = data.dot(W1) + b1
     h = sigmoid(a)
@@ -70,8 +71,6 @@ def forward_backward_prop(data, labels, params, dimensions):
     h = sigmoid(a)          # M×H
     z = h.dot(W2) + b2      # M×Dy
     yhat = softmax(z)      # M×Dy
-
-    M = data.shape[0]
     
     # Cross-entropy loss
     cost = -np.sum(labels * np.log(yhat + 1e-12))

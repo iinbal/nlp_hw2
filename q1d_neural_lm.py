@@ -7,7 +7,7 @@ import pandas as pd
 
 from data_utils import utils
 from sgd import sgd
-from q1c_neural import forward, forward_backward_prop
+from q1c_neural import forward_backward_prop
 
 
 VOCAB_EMBEDDING_PATH = "data/lm/vocab.embeddings.glove.txt"
@@ -77,14 +77,14 @@ def int_to_one_hot(number, dim):
 
 def lm_wrapper(in_word_index, out_word_index, num_to_word_embedding, dimensions, params):
 
-    data = np.zeros([BATCH_SIZE, dimensions[0]])
-    labels = np.zeros([BATCH_SIZE, dimensions[2]])
+    data = np.zeros([BATCH_SIZE, input_dim]) #dimensions[0]
+    labels = np.zeros([BATCH_SIZE, output_dim]) #dimensions[2]
 
     # Construct the data batch and run you backpropogation implementation
     
     ### YOUR CODE HERE
     N = len(in_word_index)
-    batch_indices = np.random.choice(N, BATCH_SIZE, replace=False)
+    batch_indices = np.random.choice(N, BATCH_SIZE, replace=True)
     
     # Extract input words and convert to embeddings using list comprehension to gather embeddings, then converting to array
     batch_input_indices = [in_word_index[i] for i in batch_indices]
@@ -92,9 +92,7 @@ def lm_wrapper(in_word_index, out_word_index, num_to_word_embedding, dimensions,
     
     # Extract output words and create one-hot labels
     batch_output_indices = [out_word_index[i] for i in batch_indices]
-    out_dim = dimensions[2]
-    
-    labels = np.zeros((BATCH_SIZE, out_dim))
+   
     # Use indexing to set the correct index to 1.0 for each row
     labels[np.arange(BATCH_SIZE), batch_output_indices] = 1.0
     
@@ -119,9 +117,8 @@ def eval_neural_lm(eval_data_path):
 
     perplexity = 0
     ### YOUR CODE HERE
+    
     total_cost = 0.0
-
-    output_dim = 2000 
     
     # Process the evaluation data in batches for efficiency
     for i in range(0, num_of_examples, BATCH_SIZE):
@@ -146,11 +143,8 @@ def eval_neural_lm(eval_data_path):
         # c is the total cost (sum of negative log likelihoods) for the batch
         total_cost += c
         
-    # Calculate Average Negative Log Likelihood
-    avg_nll = total_cost / num_of_examples
-    
     # Calculate Perplexity
-    perplexity = np.exp(avg_nll)
+    perplexity = np.exp(total_cost / num_of_examples)
     
     ### END YOUR CODE
 
@@ -210,3 +204,6 @@ if __name__ == "__main__":
 
     print("Shakespeare perplexity :", eval_neural_lm("shakespeare_for_perplexity.txt"))
     print("Wikipedia perplexity :", eval_neural_lm("wikipedia_for_perplexity.txt"))
+    print("Shakespeare perplexity with pos:", eval_neural_lm("shakespare_pos_fromat.txt"))
+    print("Wikipedia perplexity with pos:", eval_neural_lm("wikipedia_pos_fromat.txt"))
+    
