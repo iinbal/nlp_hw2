@@ -202,8 +202,8 @@ if __name__ == "__main__":
     else:
         print("test perplexity will be evaluated only at test time!")
 
-    print("Shakespeare perplexity :", eval_neural_lm("shakespeare_for_perplexity.txt"))
-    print("Wikipedia perplexity :", eval_neural_lm("wikipedia_for_perplexity.txt"))
-    print("Shakespeare perplexity with pos:", eval_neural_lm("shakespare_pos_fromat.txt"))
-    print("Wikipedia perplexity with pos:", eval_neural_lm("wikipedia_pos_fromat.txt"))
+    #print("Shakespeare perplexity :", eval_neural_lm("shakespeare_for_perplexity.txt"))
+    #print("Wikipedia perplexity :", eval_neural_lm("wikipedia_for_perplexity.txt"))
+    #print("Shakespeare perplexity with pos:", eval_neural_lm("shakespare_pos_fromat.txt"))
+    #print("Wikipedia perplexity with pos:", eval_neural_lm("wikipedia_pos_fromat.txt"))
     
